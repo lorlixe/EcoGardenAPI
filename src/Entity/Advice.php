@@ -3,9 +3,11 @@
 namespace App\Entity;
 
 use App\Repository\AdviceRepository;
+use DateTime;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AdviceRepository::class)]
 class Advice
@@ -18,9 +20,16 @@ class Advice
 
     #[ORM\Column(length: 255)]
     #[Groups(['advice_user'])]
+    #[Assert\NotBlank(message: "Le titre est obligatoire")]
+    #[Assert\Length(min: 1, max: 255, minMessage: "Le titre doit faire au moins {{ limit }} caractères", maxMessage: "Le titre ne peut pas faire plus de {{ limit }} caractères")]
     private ?string $title = null;
 
+    #[Groups(['advice_user'])]
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTime $date = null;
+
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: "La description est obligatoire")]
     #[Groups(['advice_user'])]
     private ?string $description = null;
 
@@ -28,6 +37,7 @@ class Advice
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['advice_user'])]
     private ?User $users = null;
+
 
     public function getId(): ?int
     {
@@ -42,6 +52,18 @@ class Advice
     public function setTitle(string $title): static
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    public function getDate(): ?DateTime
+    {
+        return $this->date;
+    }
+
+    public function setDate(DateTime $date): static
+    {
+        $this->date = $date;
 
         return $this;
     }
